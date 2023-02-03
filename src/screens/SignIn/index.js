@@ -11,16 +11,28 @@ import {
 } from './styles';
 import { Text } from "react-native";
 
+import SignInput from "../../components/SignInput";
+
 
 import BarberLogo from '../../assets/barber.svg';
+import EmailIcon from '../../assets/email.svg';
+import LockIcon from '../../assets/lock.svg';
 
 export default () => {
   return(
     <Container>
        <BarberLogo width="100%" height="160"/>
 
-       <InputArea>
-         
+       <InputArea> 
+          <SignInput 
+          IconSvg={EmailIcon}
+          placeholder="Digite seu e-mail"
+          
+          />
+          <SignInput 
+          IconSvg={LockIcon}
+          placeholder="Digite sua senha"
+          />
 
           <CustomButton>
             <CustomButtonText>Login</CustomButtonText>
