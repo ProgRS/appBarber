@@ -19,15 +19,19 @@ import {
   LocationInput,
   LocationFinder,
 
-  LoadingIcon
+  LoadingIcon,
+  ListArea
 
 
 } from './styles';
+
+import BarberItem from '../../components/BarberItem';
 
 import SearchIcon from '../../assets/search.svg';
 import MyLocationIcon from '../../assets/my_location.svg';
 import { Image } from 'react-native-svg';
 import { Alert } from 'react-native/Libraries/Alert/Alert';
+
 
 export default () => {
 
@@ -38,6 +42,8 @@ export default () => {
   const [coords, setCoods] = useState(null);
 
   const [loading, setLoading] = useState(false);
+
+  const [list, setList] = useState([]);
 
   const handleLocationFinder = async () => {
         setCoods(null);
@@ -69,6 +75,10 @@ export default () => {
         let res = await Api.getBarbers();
 
         if(res.error == ''){
+
+              if(res.loc){
+                setLocationText(res.loc);
+              }
               setList(res.data);
         }else{
            alert("Erro: "+res.error);
@@ -105,6 +115,12 @@ export default () => {
            <LoadingIcon size="large" color="#FFFFFF"/>
 
            }
+
+            <ListArea>
+                    {list.map((item, k)=>(
+                        <BarberItem key={k} data={item} />
+                    ))}
+            </ListArea>
         </Scroller>
     </Container>
   );
