@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
+import { Platform } from 'react-native';
 import { Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { request, PERMISSIONS } from 'react-native-permissions';
+import Geolocation from '@react-native-community/geolocation';
+
+import Api from '../../Api';
+
 import { 
   Container,
   Scroller,
@@ -11,19 +17,69 @@ import {
 
   LocationArea,
   LocationInput,
-  LocationFinder
+  LocationFinder,
+
+  LoadingIcon
 
 
 } from './styles';
 
 import SearchIcon from '../../assets/search.svg';
 import MyLocationIcon from '../../assets/my_location.svg';
+import { Image } from 'react-native-svg';
+import { Alert } from 'react-native/Libraries/Alert/Alert';
 
 export default () => {
 
   const navigation = useNavigation();
 
   const [locationText, setLocationText] = useState('');
+
+  const [coords, setCoods] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
+  const handleLocationFinder = async () => {
+        setCoods(null);
+        let result = await request(
+          Platform.OS === 'ios' ?
+                PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+                :
+                PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+
+        );
+
+        if(result == 'granted') {
+          setLoading(true);
+          setLocationText('');
+          setList([]);
+
+          Geolocation.getCurrentPosition((info)=>{
+              setCoords(info.coords);
+              getBarbers();
+          });
+
+      }
+  }
+
+  const getBarbers = async () =>{
+        setLoading(true);
+        setList([]);
+
+        let res = await Api.getBarbers();
+
+        if(res.error == ''){
+              setList(res.data);
+        }else{
+           alert("Erro: "+res.error);
+        }
+
+        setLoading(false);
+  }
+
+  useEffect(()=>{
+        getBarbers();
+  },[]);
 
   return(
     <Container>
@@ -41,10 +97,14 @@ export default () => {
                   value={locationText}
                   onChangeText={t=>setLocationText(t)}
                  />
-              <LocationFinder>
+              <LocationFinder onPress={handleLocationFinder}>
                   <MyLocationIcon width="24" height="24" fill="#FFFFFF"/>
               </LocationFinder>
            </LocationArea>
+           {loading &&
+           <LoadingIcon size="large" color="#FFFFFF"/>
+
+           }
         </Scroller>
     </Container>
   );
